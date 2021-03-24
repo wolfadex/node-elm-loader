@@ -43,7 +43,7 @@ export function transformSource(source, context, defaultTransformSource) {
 
   if (extensionsRegex.test(url)) {
     return {
-      source: compileToStringSync(url.replace("file://", "")),
+      source: compileToStringSync(url.replace("file://", ""), defaultOptions),
     };
   }
 
@@ -120,11 +120,11 @@ const defaultOptions = {
   help: undefined,
   output: undefined,
   report: undefined,
-  debug: undefined,
+  debug: process.env.NODE_ENV !== "production",
   verbose: false,
   processOpts: undefined,
   docs: undefined,
-  optimize: undefined,
+  optimize: process.env.NODE_ENV === "production",
 };
 
 function runCompiler(sources, options, pathToElm) {
