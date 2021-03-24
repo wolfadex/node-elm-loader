@@ -1,0 +1,12 @@
+{
+  "name": "example-node-elm-loader",
+  "version": "1.0.0",
+  "scripts": {
+    "example": "node --experimental-loader ./node-elm-loader.mjs example/src/index.mjs"
+  },
+  "author": "Wolfgang Schuster",
+  "devDependencies": {
+    "cross-spawn": "^7.0.3",
+    "temp": "^0.9.4"
+  }
+}
