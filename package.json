@@ -7,6 +7,6 @@
   "author": "Wolfgang Schuster",
   "devDependencies": {
     "cross-spawn": "^7.0.3",
-    "temp": "^0.9.4"
+    "rimraf": "^2.6.3"
   }
 }

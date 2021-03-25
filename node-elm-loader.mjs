@@ -1,8 +1,11 @@
 import { URL, pathToFileURL } from "url";
 import fs from "fs";
+import path from "path";
+import os from "os";
+import constants from "constants";
+// external deps
 import spawn from "cross-spawn";
-import { track } from "temp";
-const temp = track();
+import rimraf from "rimraf";
 
 const baseURL = pathToFileURL(`${process.cwd()}/`).href;
 
@@ -54,7 +57,7 @@ export function transformSource(source, context, defaultTransformSource) {
 // Copied from https://github.com/rtfeldman/node-elm-compiler
 
 function compileToStringSync(sources, options = {}) {
-  const file = temp.openSync({ suffix: ".js" });
+  const file = openSync();
 
   options.output = file.path;
 
@@ -120,7 +123,7 @@ const defaultOptions = {
   help: undefined,
   output: undefined,
   report: undefined,
-  debug: process.env.NODE_ENV !== "production",
+  debug: undefined,
   verbose: false,
   processOpts: undefined,
   docs: undefined,
@@ -217,4 +220,65 @@ function compilerArgsFromOptions(options) {
       }
     })
     .flat();
+}
+
+// Partially copied from from https://www.npmjs.com/package/temp
+
+const RDWR_EXCL =
+  constants.O_CREAT | constants.O_TRUNC | constants.O_RDWR | constants.O_EXCL;
+
+function openSync() {
+  const path = generateName();
+  let fd = fs.openSync(path, RDWR_EXCL, 0o600);
+  deleteFileOnExit(path);
+  return { path, fd };
+}
+
+var filesToDelete = [];
+var exitListenerAttached = false;
+
+function deleteFileOnExit(filePath) {
+  attachExitListener();
+  filesToDelete.push(filePath);
+}
+
+function attachExitListener() {
+  if (!exitListenerAttached) {
+    process.addListener("exit", function () {
+      try {
+        cleanupSync();
+      } catch (err) {
+        console.warn("Fail to clean temporary files on exit : ", err);
+        throw err;
+      }
+    });
+    exitListenerAttached = true;
+  }
+}
+
+function cleanupSync() {
+  var count = 0;
+  var toDelete;
+  while ((toDelete = filesToDelete.shift()) !== undefined) {
+    rimraf.sync(toDelete, { maxBusyTries: 6 });
+    count++;
+  }
+  return { files: count };
+}
+
+const dir = path.resolve(os.tmpdir());
+
+function generateName() {
+  const now = new Date();
+  const name = [
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    "-",
+    process.pid,
+    "-",
+    (Math.random() * 0x100000000 + 1).toString(36),
+    ".js",
+  ].join("");
+  return path.join(dir, name);
 }

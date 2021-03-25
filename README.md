@@ -6,7 +6,7 @@ A small file that uses Node's experimental [esm transpiler loader](https://nodej
 
 - [Elm](https://guide.elm-lang.org/install/elm.html)
 - [cross-spawn](https://www.npmjs.com/package/cross-spawn)
-- [temp](https://www.npmjs.com/package/temp)
+- [rimraf](https://www.npmjs.com/package/rimraf)
 
 ## Example
 
